@@ -1,0 +1,65 @@
+Have CONFIG_IP_PNP and CONFIG_IP_PNP_DHCP enabled and set up a DHCP daemon to tell your client which IP address to use and where to find its NFS-root.
+setup nfsboot
+ print ethact
+ ethact=mvp2-0
+
+ print ethprime
+ ethprime=eth0
+
+ setenv ethact eth1
+ setenv ethprime eth1
+ setenv serverip 192.168.1.100
+ setenv ipaddr 192.168.1.102
+ setenv ip_dyn no
+ setenv nfsroot /home/USER/nfs/rootfs
+ setenv image=mmc/Image
+ setenv fdt_file=mmc/armada-8040-clearfog-gt-8k.dtb
+ setenv console ttyS0
+ setenv fdt_file 0x7000000
+ setenv loadaddr 0x6000000
+ setenv netargs 'setenv bootargs console=${console},${baudrate} ${smp} root=/dev/nfs ip=${ipaddr} nfsroot=${serverip}:${nfsroot},v3,tcp rw'
+ setenv netboot 'run netargs; tftpboot ${loadaddr} ${image}; tftpboot ${fdt_addr} ${fdt_file}; booti ${loadaddr} - ${fdt_addr}'
+ run netboot
+*********************************************************************************************************
+sau khi netboot vao he thong
+setup boot emmc1
+root@openwrt:
+fdisk -l /dev/mmcblk1
+fdisk /dev/mmcblk0
+create mmcblk1p1(100M), mmcblk1p2(con lai)
+mkfs.ext4 /dev/mmcblk1p1
+mkfs.ext4 /dev/mmcblk1p2
+mount /dev/mmcblk1p2 /mmc
+ rootfs_m801: cp -r * /mmc/  && sync
+umout mmc/
+reboot
+****U-boot
+
+=>mmc dev 0
+=>ext4ls mmc 0:1
+=>ext4ls mmc 0:2
+image=mmc/Image
+fdt_file=mmc/armada-8040-clearfog-gt-8k.dtb
+setenv bootargs 'console=ttyS0,115200 root=/dev/mmcblk1p2 rw rootwait'
+setenv mmcargs=setenv bootargs console=${console},${baudrate} root=/dev/mmcblk1p2 rw rootwait
+setenv mmcboot=run mmcargs; ext4load mmc 0:2 ${fdt_addr} ${fdt_file}; ext4load mmc 0:2 ${loadaddr} ${image}; booti ${loadaddr} - ${fdt_addr}
+setenv bootcmd run mmcboot
+run mmcboot
+******************************************************************************************************
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

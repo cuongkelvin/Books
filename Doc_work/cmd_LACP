@@ -1,0 +1,89 @@
+./etc/init.d/dnsmasq restart
+sudo ethtool -N eth0 flow-type ether src 00:01:02:03:04:05 action 1 loc 10
+ethtool -N eno1 flow-type ether src b4:96:91:28:29:26  dst 00:00:00:00:00:00  action 1 loc 131073 proto 0000
+ethtool -N eno1 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 327680 loc 131327 proto 0000
+
+
+
+
+xoa : 
+ethtool -N eno1 flow-type ether src b4:96:91:28:29:26  dst 00:00:00:00:00:00  action 1 loc 2 proto 0000
+
+
+ ethtool -N eth10 delete 10 src b4:96:91:28:29:26  dst 00:00:00:00:00:00  action 327681 loc 131073 proto 0000
+ 
+ 
+ethtool -N eth1 flow-type ether src b4:96:91:28:29:26  dst aa:bb:cc:dd:ee:ff  action 1 loc 2 proto 0000
+
+ethtool -N eth1 flow-type ether src f8:b1:56:a5:8d:11 dst 00:00:00:00:00:00 action 0 loc 131074 proto 0000
+
+ethtool -N eth1 flow-type ether src b4:96:91:28:29:27  dst aa:bb:cc:dd:ee:fe  action 1 loc 12345 proto 2345
+
+
+65541
+
+ethtool -N eth2 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 1 loc 65541 proto 0000
+
+ethtool -N eth2 flow-type ether src b4:96:91:77:fc:71 dst 00:00:00:00:00:00  action 0 loc 65538 proto 0000
+
+===================================== 
+
+ethtool -N eth8 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 1 loc 65541 proto 0000
+
+ethtool -N eth8 flow-type ether src 00:04:9f:07:b4:c6 dst 00:00:00:00:00:00  action 0 loc 65538 proto 0000
+
+=====================================
+
+ethtool -N eth2 flow-type ip4 src-ip 0.0.0.0 dst-ip 0.0.0.0 action 1 loc 268501247 l4proto 00
+
+ethtool -N eth2 flow-type ip4 src-ip 40.40.40.4 dst-ip 0.0.0.0 action 0 loc 268501003 l4proto 00
+
+=== = == = = = = = = = = = = = =
+
+ethtool -N eth2 flow-type ip4 src-ip 20.20.20.5 dst-ip 0.0.0.0 action 1 loc 268566528 l4proto 00
+
+
+
+ethtool -N eth1 flow-type ip4 src-ip 10.10.10.10 dst-ip 20.20.20.20 action 1 loc 16777216 l4proto 123
+ethtool -N eth1 delete 16777216
+
+ethtool -N eth1 flow-type ip4 src-ip 0.0.0.0 dst-ip 0.0.0.0 action 1 loc 2 l4proto 0
+
+ethtool -N eth10 flow-type ether src 00:00:00:00:00:00 dst 00:00:00:00:00:00 action 1 loc 6777216 proto 0
+
+ethtool -N eth10 flow-type ether src b4:96:91:28:29:26 dst 12:23:34:45:56:67 action 1 loc 6777216 proto 1234
+ethtool -N eth10 delete 6777216
+========================================================
+ethtool -N eth1 flow-type ether src b4:96:91:28:29:26  dst 00:00:00:00:00:00  action 1 loc 2 proto 0000
+ethtool -N eth1 flow-type ether src b4:96:91:28:29:22  dst 00:00:00:00:00:00  action 1 loc 2 proto 0000
+ethtool -N eth1 flow-type ether src b4:96:91:28:29:27  dst 00:00:00:00:00:00  action 1 loc 2 proto 0000
+ethtool -N eth1 flow-type ether src b4:96:91:28:29:21  dst 00:00:00:00:00:00  action 1 loc 2 proto 0000
+
+
+
+ethtool -N eth10 flow-type ether src b4:96:91:28:29:26 dst 00:00:00:00:00:00 action 1 loc 65552 proto 0000
+ethtool -N eth10 delete 65552
+
+
+ethtool -N eth10 flow-type ether src b4:96:91:28:29:26 dst 00:00:00:00:00:00 action 1 loc 16842769 proto 0000
+ethtool -N eth10 delete 16842769
+
+
+lenh 
+Hung -> Port2 - PC1 : 9C:69:B4:62:E6:3A
+Hop  -> Port1 - PC3 : b4:96:91:28:29:24
+To   -> Port5 - PC2 : 90:B1:1C:9A:E9:2A
+
+
+ethtool -N eth2 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 0 loc 196607 proto 0000
+ethtool -N eth5 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 0 loc 196607 proto 0000
+
+ethtool -N eth1 flow-type ether src 90:B1:1C:9A:E9:2A dst 00:00:00:00:00:00 action 1 loc 131072 proto 0000
+ethtool -N eth1 flow-type ether src 90:B1:1C:9A:E9:2A dst 9C:69:B4:62:E6:3A action 1 loc 131073 proto 0000
+
+ethtool -N eth1 flow-type ether src 9C:69:B4:62:E6:3A dst 00:00:00:00:00:00 action 1 loc 131074 proto 0000
+ethtool -N eth1 flow-type ether src 9C:69:B4:62:E6:3A dst 90:B1:1C:9A:E9:2A action 0 loc 131075 proto 0000
+
+ethtool -N eth2 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 1 loc 196607 proto 0000
+ethtool -N eth5 flow-type ether src 00:00:00:00:00:00  dst 00:00:00:00:00:00  action 1 loc 196607 proto 0000
+

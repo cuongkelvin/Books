@@ -1,0 +1,147 @@
+
+mode:bonding_policy '802.3ad'
+
+config interface 'vu'                 
+        option proto 'bonding'        
+        option ipaddr '192.168.2.2'   
+        option netmask '255.255.255.0'
+        option bonding_policy '802.3ad'
+        option all_slaves_active '0'   
+        option link_monitoring 'mii'
+	option miimon '100'  
+        list slaves 'eth1'             
+        list slaves 'eth2'                                    
+        option xmit_hash_policy 'layer2'
+        option min_links '0'  
+        option force_link '1'
+        option ad_actor_sys_prio '65535'
+        option ad_select 'bandwidth'       
+        option lacp_rate 'fast'
+        option lacp_active '1' #đặt chế độ Active cho LACP
+        option lacp_active '0' #đặt chế độ Passive cho LACP.
+
+
+Aggregation Selection Logic: option ad_select 'bandwidth'
+			     option ad_select 'stable' 
+Transmit Hash Policy:
++ xmit_hash_policy='layer2': Sử dụng XOR địa chỉ MAC phần cứng để tạo hàm băm. Thuật toán này sẽ đặt tất cả lưu lượng truy cập đến một mạng ngang hàng cụ thể trên cùng một slave.
++ xmit_hash_policy='layer2+3': Sử dụng kết hợp thông tin giao thức lớp 2 và lớp 3 để tạo hàm băm. Lưu lượng truy cập cho các máy chủ từ xa khác nhau được ánh xạ tới các máy chủ khác nhau; một máy chủ từ xa luôn được ánh xạ tới cùng một slave.
++xmit_hash_policy='layer3+4'": Sử dụng thông tin giao thức lớp trên, nếu có, để tạo hàm băm. Lưu lượng truy cập cho các kết nối khác nhau tới cùng một máy chủ từ xa được ánh xạ tới các máy chủ khác nhau; mỗi kết nối riêng lẻ luôn được ánh xạ tới cùng một slave. Mỗi kết nối được xác định bằng địa chỉ IP cộng với số cổng.
+
+
+mode:bonding_policy 'balance-alb'
+
+config interface 'vu'                                                           
+        option proto 'bonding'                                                  
+        option ipaddr '192.168.2.2'   =>thay đổi                                          
+        option netmask '255.255.255.0'     =>thay đổi                                      
+        option bonding_policy 'balance-alb'    =>thay đổi                                 
+        option all_slaves_active '0'                                            
+        option link_monitoring 'off'                                            
+        list slaves 'eth2'    =>thay đổi                                                   
+        list slaves 'eth3'    =>thay đổi                                                
+        list slaves 'eth4'    =>thay đổi                                               
+        option force_link '1'                                                   
+        list dns '8.8.8.8'                                                      
+        option dns_metric '5'                                                   
+        option metric '1'                                                       
+        option ip4table 'main'                                                  
+        option ip6table 'main'                                                  
+        option ip6assign '64'                                                   
+        list ip6class 'local'                                                   
+        option xmit_hash_policy 'layer2'                                        
+        //option primary 'eth2' => chọn mode  bonding_policy 'balance-alb'                                               
+        //option primary_reselect 'always'                                        
+        //option lp_interval '1'                                                  
+        //option resend_igmp '1'
+
+mode:option bonding_policy 'balance-tlb'
+
+config interface 'vu'                 
+        option proto 'bonding'        
+        option ipaddr '192.168.2.2'   
+        option netmask '255.255.255.0'
+        option bonding_policy 'balance-tlb'
+        option all_slaves_active '0'       
+        option link_monitoring 'off'       
+        list slaves 'eth2'                 
+        list slaves 'eth3'                 
+        list slaves 'eth4'                 
+        option force_link '1'              
+        list dns '8.8.8.8'                 
+        option dns_metric '5'              
+        option metric '1'                  
+        option ip4table 'main'             
+        option ip6table 'main'             
+        option ip6assign '64'              
+        list ip6class 'local'              
+        option xmit_hash_policy 'layer2'
+        //option primary 'eth2'           
+        //option primary_reselect 'always'
+        //option lp_interval '1'          
+        //option resend_igmp '1'          
+        //option tlb_dynamic_lb '1'
+
+ mode: bonding_policy 'broadcast'
+
+config interface 'vu'       
+        option proto 'bonding'
+        option ipaddr '192.168.2.2'
+        option netmask '255.255.255.0'
+        option bonding_policy 'broadcast'
+        option all_slaves_active '0'     
+        option link_monitoring 'off'     
+        list slaves 'eth2'               
+        list slaves 'eth3'               
+        list slaves 'eth4'          
+        option force_link '1'       
+        list dns '8.8.8.8'   
+        option dns_metric '5'
+        option metric '1'    
+        option ip4table 'main'
+        option ip6table 'main'
+        option ip6assign '64' 
+        list ip6class 'local' 
+
+mode: bonding_policy 'active-backup'
+
+config interface 'vu'                 
+        option proto 'bonding'        
+        option ipaddr '192.168.2.2'
+        option netmask '255.255.255.0'
+        option bonding_policy 'active-backup'
+        option all_slaves_active '0'         
+        option link_monitoring 'off'         
+        option force_link '1'                
+        list dns '8.8.8.8'                   
+        option dns_metric '5'                
+        option metric '1'                    
+        option ip4table 'main'               
+        option ip6table 'main'               
+        option ip6assign '64'       
+        list ip6class 'local'       
+        list slaves 'eth2'    
+        list slaves 'eth3'    
+        list slaves 'eth4'    
+        option primary 'eth2' 
+        option primary_reselect 'always'
+        option fail_over_mac 'none'     
+        option num_grat_arp__num_unsol_na '1'
+
+mode: bonding_policy 'balance-rr'
+
+config interface 'ducmd'
+        option proto 'bonding'
+        option ipaddr '192.168.2.10'
+        option netmask '255.255.255.0'
+        list slaves 'eth1'
+        list slaves 'eth2'
+        option bonding_policy 'balance-rr'
+        option packets_per_slave '1'
+        option xmit_hash_policy 'layer2'
+        option all_slaves_active '0'
+        option link_monitoring 'off'
+
+
+
+

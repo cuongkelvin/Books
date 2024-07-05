@@ -1,0 +1,18 @@
+#Copy du lieu vao tu cong eth1 sang cong eth2
+
+tc qdisc add dev eth5 clsact
+
+
+tc filter add dev eth5 ingress matchall action mirred egress mirror dev eth6
+
+#Copy du lieu ra tu cong lan4 sang cong lan3
+tc filter add dev eth1 egress matchall action mirred egress mirror dev eth2
+
+
+tc qdisc add dev eth2 clsact
+
+
+tc filter add dev eth2 ingress matchall action mirred egress mirror dev eth1
+
+#Copy du lieu ra tu cong lan4 sang cong lan3
+tc filter add dev eth1 egress matchall action mirred egress mirror dev eth2

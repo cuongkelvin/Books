@@ -1,0 +1,122 @@
+## List chain custom ## 
+  #mangle:
+  $IPT -t mangle -N PRE_LANCS_AAR
+  $IPT -t mangle -N LANCS_AAR
+  $IPT -t mangle -N POLICY_CLASSIFY
+  $IPT -t mangle -A PREROUTING -j LANCS_AAR
+  $IPT -t mangle -A OUTPUT -j LANCS_AAR
+  $IPT -t mangle -A POSTROUTING -j POLICY_CLASSIFY
+  
+  #raw:
+  --ipset--
+    ipset create URL_BLOCK hash:ip
+    ipset create whitelist hash:ip
+    
+  -- iptables --
+  $IPT -t raw -N LOGNDROP
+  $IPT -t raw -N SANITARY
+  $IPT -t raw -N DEAUTH
+  $IPT -t raw -N GENERAL_FIREWALL
+  $IPT -t raw -N URL_FILTER
+  $IPT -t raw -N BLACK_LIST
+  
+  $IPT -t raw -A PREROUTING -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -j SANITARY
+  $IPT -t raw -A PREROUTING -j DEAUTH
+  $IPT -t raw -A PREROUTING -j GENERAL_FIREWALL
+  $IPT -t raw -A PREROUTING -j URL_FILTER
+  $IPT -t raw -A URL_FILTER -m set --match-set URL_BLOCK dst -j DROP
+  $IPT -t raw -A PREROUTING -j BLACK_LIST
+  
+  $IPT -t raw -A LOGNDROP -m limit --limit 5/min -j LOG --log-prefix "DROP: "
+  $IPT -t raw -A LOGNDROP -j DROP
+  $IPT -t raw -A SANITARY -p tcp -m tcpmss ! --mss 536:65535 -j LOGNDROP
+  
+  #nat
+  $IPT -t nat -N CAPTIVE_PORTAL
+  $IPT -t nat -N IPSEC_NAT
+  $IPT -t nat -N SAFE_DNS
+  $IPT -t nat -N BLOCK_INTERNET
+
+  $IPT -t nat -A PREROUTING -i br-lan -j CAPTIVE_PORTAL
+  $IPT -t nat -A PREROUTING -j SAFE_DNS
+  $IPT -t nat -A POSTROUTING -j IPSEC_NAT
+  $IPT -t nat -A WAN_NAT -j BLOCK_INTERNET
+
+  #Filter:
+  $IPT -N BAD_TCP
+  $IPT -N CONNTRACK
+  $IPT -N CAPTIVE_PORTAL
+  $IPT -N GUARDIAN
+  $IPT -N VLAN_ACCEPT
+  $IPT -N IPSEC_BLOCK
+  $IPT -N IPSEC_FORWARD
+  $IPT -N IPSEC_INPUT
+  $IPT -N IPSEC_OUTPUT
+  $IPT -N IPS_FORWARD
+  $IPT -N IPS_INPUT
+  $IPT -N IPS_OUTPUT
+  
+---- Linksafe Policy ----
+  $IPT -N POLICY_FWD
+  $IPT -N POLICY_FWD_IN
+  $IPT -N POLICY_FWD_OUT
+  $IPT -N POLICY_FWD_BLOCK
+  $IPT -N POLICY_FWD_BLOCK_IOT
+  
+  $IPT -A FORWARD -j VLAN_ACCEPT
+  $IPT -A FORWARD -j POLICY_FWD
+  $IPT -A FORWARD -p tcp -j BAD_TCP
+  $IPT -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+  $IPT -A FORWARD -j GUARDIAN
+  $IPT -A FORWARD -j IPS_FORWARD
+  $IPT -A FORWARD -j CAPTIVE_PORTAL
+  $IPT -A FORWARD -j CONNTRACK
+  $IPT -A FORWARD -j FIREWALL_POLICY
+  $IPT -A FORWARD -j IPSEC_FORWARD
+  
+  $IPT -A OUTPUT -j IPS_OUTPUT
+  $IPT -A OUTPUT -j CONNTRACK
+  $IPT -A OUTPUT -j IPSEC_OUTPUT
+  
+##### policy #####
+  ipset create block_iot hash:ip
+  $IPT -A POLICY_FWD -i br-wan -j POLICY_FWD_IN
+  $IPT -A POLICY_FWD -i br-lan -j POLICY_FWD_OUT
+
+  $IPT -A POLICY_FWD -m mark --mark 0x10000/0xff0000 -j POLICY_FWD_BLOCK
+  $IPT -A POLICY_FWD_BLOCK -j DROP
+  $IPT -A POLICY_FWD -j POLICY_FWD_BLOCK_IOT
+#################
+
+  $IPT -A BAD_TCP -i lo -j RETURN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,PSH,URG -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,ACK,URG -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,PSH,ACK,URG -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags SYN,RST SYN,RST -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags FIN,SYN FIN,SYN -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -j PSCAN
+  $IPT -A BAD_TCP -p tcp -m tcp ! --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j NEWNOTSYN
+
+$IPT -A CONNTRACK -m conntrack --ctstate ESTABLISHED -j ACCEPT
+  $IPT -A CONNTRACK -m conntrack --ctstate INVALID -j DROP
+  $IPT -A CONNTRACK -p icmp -m conntrack --ctstate RELATED -j ACCEPT
+  $IPT -A CONNTRACK -m conntrack --ctstate RELATED -m helper --helper sip -j ACCEPT
+  $IPT -A CONNTRACK -m conntrack --ctstate RELATED -m helper --helper h323 -j ACCEPT
+  $IPT -A CONNTRACK -p tcp -m conntrack --ctstate RELATED -m helper --helper ftp -m tcp --dport 1024:65535 -j ACCEPT
+  $IPT -A CONNTRACK -m conntrack --ctstate RELATED -m helper --helper tftp -j ACCEPT
+  $IPT -A CONNTRACK -m conntrack --ctstate RELATED -m helper --helper irc -j ACCEPT
+
+    $IPT -A GUARDIAN -p tcp --dport ssh -m conntrack --ctstate NEW -m recent --set
+  $IPT -A GUARDIAN -p tcp --dport ssh -m conntrack --ctstate NEW -m recent --update --seconds 60 --hitcount 10 -j DROP
+  #$IPT -A GUARDIAN -p tcp -m connlimit --connlimit-above 100000 -j REJECT --reject-with tcp-reset
+  #$IPT -A GUARDIAN -p tcp -m conntrack --ctstate NEW -m limit --limit 10000/s --limit-burst 20000 -j ACCEPT
+
+  #mangle:
+  $IPT -t mangle -N PRE_LANCS_AAR
+  $IPT -t mangle -N LANCS_AAR
+  $IPT -t mangle -N POLICY_CLASSIFY
+  $IPT -t mangle -A PREROUTING -j LANCS_AAR
+  $IPT -t mangle -A OUTPUT -j LANCS_AAR
+  $IPT -t mangle -A POSTROUTING -j POLICY_CLASSIFY
+  
