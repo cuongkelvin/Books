@@ -1,2 +1,2 @@
 # Books
-talk is cheap show me the code
+Books are a wonderful source knowledge and pleasure
